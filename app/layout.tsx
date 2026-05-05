@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -13,21 +13,60 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://justbuildit.lol";
+const SITE_NAME = "just build it";
+const SITE_TAGLINE = "stop overthinking. ship something on Solana. → solana.new";
+
 export const metadata: Metadata = {
-  title: "just build it",
-  description: "Stop overthinking. Ship something on Solana. → solana.new",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_TAGLINE,
+  applicationName: SITE_NAME,
+  keywords: [
+    "solana",
+    "build",
+    "ship",
+    "weekend hack",
+    "solana.new",
+    "web3",
+    "developer tools",
+    "indie hacker",
+    "just build it",
+  ],
+  authors: [{ name: "metasal", url: "https://x.com/metasal_" }],
+  creator: "metasal",
+  publisher: "metasal",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "just build it",
-    description: "Stop overthinking. Ship something on Solana.",
-    url: "https://justbuildit.lol",
-    siteName: "just build it",
     type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "just build it",
-    description: "Stop overthinking. Ship something on Solana.",
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
+    creator: "@metasal_",
   },
+  category: "technology",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
 };
 
 const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;

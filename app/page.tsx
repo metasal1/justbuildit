@@ -13,10 +13,15 @@ const TAGLINES = [
 
 const FLOATING_EMOJIS = ["⚡", "🛠", "🚀", "🔥", "💎", "🛸", "✨", "📦"];
 
+type SubscribeStatus = "idle" | "loading" | "success" | "error";
+
 export default function Home() {
   const [tagIndex, setTagIndex] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [clicks, setClicks] = useState(0);
+  const [email, setEmail] = useState("");
+  const [subStatus, setSubStatus] = useState<SubscribeStatus>("idle");
+  const [subMessage, setSubMessage] = useState("");
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -28,6 +33,36 @@ export default function Home() {
   const handleBuild = () => {
     setClicks((c) => c + 1);
     window.open("https://solana.new", "_blank", "noopener,noreferrer");
+  };
+
+  const handleSubscribe: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    if (subStatus === "loading") return;
+    setSubStatus("loading");
+    setSubMessage("");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setSubStatus("success");
+        setSubMessage("you're in. now go ship something.");
+        setEmail("");
+      } else {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setSubStatus("error");
+        setSubMessage(
+          data.error === "invalid_email"
+            ? "that email looks off."
+            : "something broke. try again."
+        );
+      }
+    } catch {
+      setSubStatus("error");
+      setSubMessage("network error. try again.");
+    }
   };
 
   return (
@@ -91,11 +126,56 @@ export default function Home() {
           </p>
         </div>
 
+        <form
+          onSubmit={handleSubscribe}
+          className="mt-12 w-full max-w-md flex flex-col items-center gap-3"
+        >
+          <p className="text-xs uppercase tracking-[0.2em] text-white/50 font-mono">
+            get the drop. no spam.
+          </p>
+          <div className="w-full flex flex-col sm:flex-row gap-2">
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@domain.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={subStatus === "loading"}
+              className="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/15 text-white placeholder:text-white/30 font-mono text-sm focus:outline-none focus:border-[var(--solana-green)] focus:bg-white/10 transition-colors disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={subStatus === "loading"}
+              className="px-6 py-3 rounded-lg bg-[var(--solana-green)] text-black font-black uppercase text-sm tracking-wider hover:brightness-110 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {subStatus === "loading" ? "..." : "subscribe"}
+            </button>
+          </div>
+          {subMessage && (
+            <p
+              className={`text-xs font-mono ${
+                subStatus === "success"
+                  ? "text-[var(--solana-green)]"
+                  : "text-red-400"
+              }`}
+            >
+              {subMessage}
+            </p>
+          )}
+        </form>
+
+        <div className="mt-10 flex items-center gap-4 text-xs uppercase tracking-[0.3em] text-white/30 font-mono">
+          <span className="h-px w-12 bg-white/15" />
+          or
+          <span className="h-px w-12 bg-white/15" />
+        </div>
+
         <button
           onClick={handleBuild}
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
-          className={`mt-12 group relative px-12 py-6 md:px-16 md:py-8 rounded-2xl bg-black border-2 border-white text-2xl md:text-4xl font-black uppercase tracking-tight pulse-glow transition-transform active:scale-95 ${
+          className={`mt-8 group relative px-10 py-5 md:px-14 md:py-6 rounded-2xl bg-black border-2 border-white text-xl md:text-3xl font-black uppercase tracking-tight pulse-glow transition-transform active:scale-95 ${
             hovering ? "wiggle" : ""
           }`}
         >
