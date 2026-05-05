@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,6 +30,8 @@ export const metadata: Metadata = {
   },
 };
 
+const cfBeaconToken = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -43,8 +44,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-black text-white overflow-x-hidden">
         {children}
-        <Analytics />
-        <SpeedInsights />
+        {cfBeaconToken && (
+          <Script
+            strategy="afterInteractive"
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${cfBeaconToken}"}`}
+          />
+        )}
       </body>
     </html>
   );
