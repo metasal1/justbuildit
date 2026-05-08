@@ -138,16 +138,21 @@ export default function Home() {
               type="email"
               required
               autoComplete="email"
+              inputMode="email"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
               placeholder="you@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={subStatus === "loading"}
-              className="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/15 text-white placeholder:text-white/30 font-mono text-sm focus:outline-none focus:border-[var(--solana-green)] focus:bg-white/10 transition-colors disabled:opacity-50"
+              style={{ fontSize: 16 }}
+              className="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/15 text-white placeholder:text-white/30 font-mono focus:outline-none focus:border-[var(--solana-green)] focus:bg-white/10 transition-colors disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={subStatus === "loading"}
-              className="px-6 py-3 rounded-lg bg-[var(--solana-green)] text-black font-black uppercase text-sm tracking-wider hover:brightness-110 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 rounded-lg bg-[var(--solana-green)] text-black font-black uppercase text-base tracking-wider hover:brightness-110 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {subStatus === "loading" ? "..." : "subscribe"}
             </button>
