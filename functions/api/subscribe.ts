@@ -3,9 +3,10 @@ interface Env {
   TURSO_AUTH_TOKEN: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
-  SENDGRID_API_KEY?: string;
-  SENDGRID_FROM_EMAIL?: string;
-  SENDGRID_FROM_NAME?: string;
+  RESEND_API_KEY?: string;
+  RESEND_AUDIENCE_ID?: string;
+  RESEND_FROM_EMAIL?: string;
+  RESEND_FROM_NAME?: string;
   SHEETS_WEBHOOK_URL?: string;
   SHEETS_WEBHOOK_SECRET?: string;
 }
@@ -100,35 +101,41 @@ const appendToSheet = async (
   }
 };
 
+const addToResendAudience = async (env: Env, email: string) => {
+  if (!env.RESEND_API_KEY || !env.RESEND_AUDIENCE_ID) return;
+  const res = await fetch(
+    `https://api.resend.com/audiences/${env.RESEND_AUDIENCE_ID}/contacts`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({ email, unsubscribed: false }),
+    }
+  );
+  if (!res.ok) console.error("resend_audience_error", res.status, await res.text());
+};
+
 const sendWelcome = async (env: Env, to: string) => {
-  if (!env.SENDGRID_API_KEY || !env.SENDGRID_FROM_EMAIL) return;
-  const fromName = env.SENDGRID_FROM_NAME || "just build it";
-  const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
+  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) return;
+  const fromName = env.RESEND_FROM_NAME || "just build it";
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${env.SENDGRID_API_KEY}`,
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      personalizations: [
-        { to: [{ email: to }], subject: "you're in. now go ship something." },
-      ],
-      from: { email: env.SENDGRID_FROM_EMAIL, name: fromName },
-      content: [
-        {
-          type: "text/plain",
-          value:
-            "hey,\n\nthanks for subscribing to just build it.\n\nstop overthinking. start shipping.\n\nmore from metasal: https://metasal.xyz\nchat: https://t.me/metasalxyz\n\njust build it\n",
-        },
-        {
-          type: "text/html",
-          value:
-            '<p>hey,</p><p>thanks for subscribing to <strong>just build it</strong>.</p><p>stop overthinking. start shipping.</p><p>more from metasal: <a href="https://metasal.xyz">metasal.xyz</a><br>chat: <a href="https://t.me/metasalxyz">t.me/metasalxyz</a></p><p>just build it</p>',
-        },
-      ],
+      from: `${fromName} <${env.RESEND_FROM_EMAIL}>`,
+      to: [to],
+      reply_to: "gm@metasal.xyz",
+      subject: "you're in. now go ship something.",
+      text: "hey,\n\nthanks for subscribing to just build it.\n\nstop overthinking. start shipping.\n\nmore from metasal: https://metasal.xyz\nchat: https://t.me/metasalxyz\n\njust build it\n",
+      html: '<p>hey,</p><p>thanks for subscribing to <strong>just build it</strong>.</p><p>stop overthinking. start shipping.</p><p>more from metasal: <a href="https://metasal.xyz">metasal.xyz</a><br>chat: <a href="https://t.me/metasalxyz">t.me/metasalxyz</a></p><p>just build it</p>',
     }),
   });
-  if (!res.ok) console.error("sendgrid_error", res.status, await res.text());
+  if (!res.ok) console.error("resend_send_error", res.status, await res.text());
 };
 
 const notifyTelegram = async (env: Env, text: string) => {
@@ -193,6 +200,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     waitUntil(
       notifyTelegram(env, `🎉 new sub: ${email}${ip ? `\nip: ${ip}` : ""}`)
     );
+    waitUntil(addToResendAudience(env, email));
     waitUntil(sendWelcome(env, email));
     waitUntil(appendToSheet(env, email, ip, ua, now));
   }
