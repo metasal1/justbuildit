@@ -6,6 +6,8 @@ interface Env {
   SENDGRID_API_KEY?: string;
   SENDGRID_FROM_EMAIL?: string;
   SENDGRID_FROM_NAME?: string;
+  SHEETS_WEBHOOK_URL?: string;
+  SHEETS_WEBHOOK_SECRET?: string;
 }
 
 type PagesFunction<E = unknown> = (ctx: {
@@ -71,6 +73,31 @@ const insertSubscriber = async (
   };
   const rows = data.results?.[0]?.response?.result?.rows ?? [];
   return rows.length > 0;
+};
+
+const appendToSheet = async (
+  env: Env,
+  email: string,
+  ip: string | null,
+  ua: string | null,
+  createdAt: number
+) => {
+  if (!env.SHEETS_WEBHOOK_URL || !env.SHEETS_WEBHOOK_SECRET) return;
+  const res = await fetch(env.SHEETS_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      secret: env.SHEETS_WEBHOOK_SECRET,
+      email,
+      ip,
+      ua,
+      created_at: createdAt,
+    }),
+    redirect: "manual",
+  });
+  if (res.status >= 400) {
+    console.error("sheets_error", res.status, await res.text());
+  }
 };
 
 const sendWelcome = async (env: Env, to: string) => {
@@ -162,10 +189,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   }
 
   if (isNew) {
+    const now = Date.now();
     waitUntil(
       notifyTelegram(env, `🎉 new sub: ${email}${ip ? `\nip: ${ip}` : ""}`)
     );
     waitUntil(sendWelcome(env, email));
+    waitUntil(appendToSheet(env, email, ip, ua, now));
   }
 
   return json({ ok: true, duplicate: !isNew });
