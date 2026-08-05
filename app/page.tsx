@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const TAGLINES = [
   "stop overthinking",
   "ship something today",
   "your idea > your roadmap",
   "1 weekend > 6 month plan",
-  "solana.new and go",
+  "done beats perfect",
   "just. build. it.",
 ];
 
@@ -22,6 +22,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [subStatus, setSubStatus] = useState<SubscribeStatus>("idle");
   const [subMessage, setSubMessage] = useState("");
+  const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -32,7 +33,8 @@ export default function Home() {
 
   const handleBuild = () => {
     setClicks((c) => c + 1);
-    window.open("https://solana.new", "_blank", "noopener,noreferrer");
+    emailRef.current?.focus();
+    emailRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   const handleSubscribe: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
@@ -153,6 +155,7 @@ export default function Home() {
           />
           <div className="w-full flex flex-col sm:flex-row gap-2">
             <input
+              ref={emailRef}
               type="email"
               name="email"
               required
@@ -222,20 +225,37 @@ export default function Home() {
         </button>
 
         <p className="mt-6 text-sm md:text-base text-white/50 font-mono">
-          opens{" "}
-          <span className="text-white font-semibold underline decoration-dotted underline-offset-4">
-            solana.new
-          </span>{" "}
-          — a fresh repo. one click. start shipping.
+          stop overthinking. pick one idea. ship this weekend.
         </p>
 
         {clicks > 0 && (
           <p className="mt-3 text-xs text-[var(--solana-green)] font-mono">
             {clicks === 1
-              ? "let's go 🚀"
-              : `${clicks}× clicked. now actually go build something.`}
+              ? "drop your email. let's go 🚀"
+              : `${clicks}× — still here? type your email and subscribe.`}
           </p>
         )}
+
+        <p className="mt-10 text-xs font-mono text-white/35">
+          by{" "}
+          <a
+            href="https://metasal.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/60 underline decoration-dotted underline-offset-4 hover:text-[var(--solana-green)]"
+          >
+            metasal
+          </a>
+          {" · "}
+          <a
+            href="https://x.com/metasal"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/60 underline decoration-dotted underline-offset-4 hover:text-[var(--solana-green)]"
+          >
+            @metasal
+          </a>
+        </p>
       </div>
 
       {/* marquee footer */}
@@ -247,7 +267,6 @@ export default function Home() {
                 "ship fast",
                 "iterate later",
                 "done > perfect",
-                "solana.new",
                 "weekend hack",
                 "no more tutorials",
                 "just build it",

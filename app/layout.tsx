@@ -18,9 +18,8 @@ const rubikPixels = Rubik_Pixels({
 
 const SITE_URL = "https://justbuildit.lol";
 const SITE_NAME = "just build it";
-const SITE_TAGLINE =
-  "stop overthinking. ship something on Solana. → solana.new";
-const OG_IMAGE = "/images/opengraph.png?v=3";
+const SITE_TAGLINE = "stop overthinking. ship something today.";
+const OG_IMAGE = "/images/opengraph.png?v=4";
 // Hardcoded at build (static export). MILYSEC property justbuildit.lol.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-75Z5E0HRNC";
 
@@ -37,13 +36,12 @@ export const metadata: Metadata = {
     "build",
     "ship",
     "weekend hack",
-    "solana.new",
     "web3",
     "developer tools",
     "indie hacker",
     "just build it",
   ],
-  authors: [{ name: "metasal", url: "https://x.com/metasal_" }],
+  authors: [{ name: "metasal", url: "https://metasal.xyz" }],
   creator: "metasal",
   publisher: "metasal",
   robots: {
@@ -64,7 +62,7 @@ export const metadata: Metadata = {
         url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "just build it — stop overthinking, ship something on Solana",
+        alt: "just build it — stop overthinking, ship something today",
         type: "image/png",
       },
     ],
@@ -73,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_TAGLINE,
-    creator: "@metasal_",
+    creator: "@metasal",
     images: [OG_IMAGE],
   },
   category: "technology",

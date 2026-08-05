@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish justbuildit.lol on-brand Resend templates.
+"""Publish justbuildit.lol on-brand Resend templates (match live site).
 
   python3 scripts/publish-resend-templates.py
 
@@ -14,25 +14,26 @@ import urllib.error
 import urllib.request
 
 API = "https://api.resend.com"
-UA = "justbuildit-templates/1.0"
+UA = "justbuildit-templates/1.1"
 KEY_PATH = pathlib.Path.home() / ".credentials" / "resend-justbuildit.txt"
 OUT = pathlib.Path.home() / ".credentials" / "resend-justbuildit-templates.json"
 
 BG = "#000000"
-CARD = "#0a0a0a"
-BORDER = "rgba(255,255,255,0.12)"
-PRIMARY = "#14f195"  # solana green
+CARD = "#050505"
+BORDER = "rgba(255,255,255,0.15)"
+PRIMARY = "#14f195"
 PURPLE = "#9945ff"
 MAGENTA = "#dc1fff"
 TEXT = "#ffffff"
 MUTED = "rgba(255,255,255,0.65)"
+DIM = "rgba(255,255,255,0.4)"
 SITE = "https://justbuildit.lol"
-SOLANA_NEW = "https://solana.new"
-X = "https://x.com/metasal_"
-TG = "https://t.me/metasalxyz"
 METASAL = "https://metasal.xyz"
+X = "https://x.com/metasal"
 FROM = "just build it <noreply@justbuildit.lol>"
-FONT = "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace"
+# Site stack: Bricolage body · mono UI — email-safe with system fallbacks
+FONT = "'Bricolage Grotesque',Inter,system-ui,-apple-system,Segoe UI,sans-serif"
+MONO = "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace"
 
 
 def load_key() -> str:
@@ -73,11 +74,11 @@ def shell(preheader: str, title: str, body: str, cta_label: str | None = None, c
     cta = ""
     if cta_label and cta_href:
         cta = (
-            '<tr><td style="padding:8px 28px 28px">'
+            '<tr><td style="padding:4px 28px 28px" align="center">'
             f'<a href="{cta_href}" target="_blank" rel="noopener noreferrer" '
             f'style="display:inline-block;background:{PRIMARY};color:#000;text-decoration:none;'
-            "font-weight:900;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;"
-            f'font-family:{FONT};padding:14px 22px;border-radius:10px">'
+            "font-weight:900;font-size:15px;letter-spacing:0.12em;text-transform:uppercase;"
+            f'font-family:{MONO};padding:14px 28px;border-radius:10px">'
             f"{cta_label}</a></td></tr>"
         )
     grad = f"linear-gradient(90deg,{PURPLE} 0%,{PRIMARY} 50%,{MAGENTA} 100%)"
@@ -89,39 +90,53 @@ def shell(preheader: str, title: str, body: str, cta_label: str | None = None, c
         '  <meta name="viewport" content="width=device-width,initial-scale=1"/>\n'
         '  <meta name="color-scheme" content="dark"/>\n'
         f"  <title>{title}</title>\n"
+        f'  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet"/>\n'
         "</head>\n"
         f'<body style="margin:0;padding:0;background:{BG};color:{TEXT}">\n'
         f'  <div style="display:none;max-height:0;overflow:hidden;opacity:0">{preheader}</div>\n'
-        f'  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{BG};padding:32px 12px">\n'
+        f'  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{BG};padding:36px 12px">\n'
         '    <tr><td align="center">\n'
-        f'      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:{CARD};border:1px solid {BORDER};border-radius:16px;overflow:hidden">\n'
+        # outer glow-ish card
+        f'      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:{CARD};border:1px solid {BORDER};border-radius:20px;overflow:hidden">\n'
         f'        <tr><td style="height:4px;background:{grad};font-size:0;line-height:0">&nbsp;</td></tr>\n'
-        '        <tr><td style="padding:28px 28px 8px" align="left">\n'
-        f'          <div style="font-family:{FONT};font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:{PRIMARY};font-weight:700">just build it</div>\n'
-        f'          <div style="font-family:{FONT};font-size:13px;color:{MUTED};margin-top:4px">stop overthinking. ship something.</div>\n'
+        # live pill (matches site)
+        '        <tr><td style="padding:28px 28px 8px" align="center">\n'
+        f'          <span style="display:inline-block;padding:8px 16px;border-radius:999px;border:1px solid {BORDER};background:rgba(255,255,255,0.05);'
+        f'font-family:{MONO};font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.7)">'
+        f'<span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:{PRIMARY};margin-right:8px;vertical-align:middle"></span>'
+        "live · justbuildit.lol</span>\n"
         "        </td></tr>\n"
-        f'        <tr><td style="padding:12px 28px 4px">\n'
-        f'          <h1 style="margin:0;font-family:{FONT};font-size:26px;line-height:1.2;color:{TEXT};font-weight:900;letter-spacing:-0.02em">{title}</h1>\n'
+        # brand title like site H1
+        '        <tr><td style="padding:18px 28px 4px" align="center">\n'
+        f'          <div style="font-family:{FONT};font-size:42px;line-height:0.95;font-weight:800;letter-spacing:-0.03em;'
+        f"background:{grad};-webkit-background-clip:text;background-clip:text;color:transparent;"
+        f'-webkit-text-fill-color:transparent">JUST BUILD IT.</div>\n'
         "        </td></tr>\n"
-        f'        <tr><td style="padding:12px 28px 8px;font-family:{FONT};font-size:15px;line-height:1.65;color:{MUTED}">\n'
+        f'        <tr><td style="padding:10px 28px 4px" align="center">\n'
+        f'          <div style="font-family:{MONO};font-size:14px;color:{MUTED}">&gt; stop overthinking. ship something today<span style="color:{PRIMARY}">_</span></div>\n'
+        "        </td></tr>\n"
+        # message title
+        f'        <tr><td style="padding:28px 28px 4px" align="center">\n'
+        f'          <h1 style="margin:0;font-family:{FONT};font-size:28px;line-height:1.2;color:{TEXT};font-weight:800;letter-spacing:-0.02em">{title}</h1>\n'
+        "        </td></tr>\n"
+        f'        <tr><td style="padding:14px 32px 8px;font-family:{FONT};font-size:16px;line-height:1.65;color:{MUTED}" align="center">\n'
         f"          {body}\n"
         "        </td></tr>\n"
         f"        {cta}\n"
-        '        <tr><td style="padding:8px 28px 24px">\n'
+        # footer — site brand only + metasal + x
+        '        <tr><td style="padding:8px 28px 28px">\n'
         f'          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid {BORDER}">\n'
-        f'            <tr><td style="padding-top:18px;font-family:{FONT};font-size:12px;line-height:1.5;color:{MUTED}">\n'
+        f'            <tr><td style="padding-top:20px;font-family:{MONO};font-size:12px;line-height:1.6;color:{DIM}" align="center">\n'
         f'              <a href="{SITE}" style="color:{PRIMARY};text-decoration:none">justbuildit.lol</a>\n'
-        "              &nbsp;·&nbsp;\n"
-        f'              <a href="{SOLANA_NEW}" style="color:{PRIMARY};text-decoration:none">solana.new</a>\n'
-        "              &nbsp;·&nbsp;\n"
-        f'              <a href="{X}" style="color:{PRIMARY};text-decoration:none">@metasal_</a>\n'
-        "              &nbsp;·&nbsp;\n"
-        f'              <a href="{TG}" style="color:{PRIMARY};text-decoration:none">telegram</a>\n'
+        f'              <span style="color:{DIM}">&nbsp;·&nbsp;</span>\n'
+        f'              <a href="{METASAL}" style="color:{PRIMARY};text-decoration:none">metasal.xyz</a>\n'
+        f'              <span style="color:{DIM}">&nbsp;·&nbsp;</span>\n'
+        f'              <a href="{X}" style="color:{PRIMARY};text-decoration:none">@metasal</a>\n'
         "            </td></tr>\n"
         "          </table>\n"
         "        </td></tr>\n"
         "      </table>\n"
-        f'      <p style="margin:16px 0 0;font-family:{FONT};font-size:11px;color:rgba(255,255,255,0.35)">just build it · by metasal · <a href="{METASAL}" style="color:rgba(255,255,255,0.45);text-decoration:none">metasal.xyz</a></p>\n'
+        f'      <p style="margin:18px 0 0;font-family:{MONO};font-size:11px;color:rgba(255,255,255,0.3)">just build it · by metasal</p>\n'
         "    </td></tr>\n"
         "  </table>\n"
         "</body>\n"
@@ -133,8 +148,7 @@ def shell(preheader: str, title: str, body: str, cta_label: str | None = None, c
 CONFIRM_BODY = (
     '<p style="margin:0 0 12px;color:#ffffff">you\'re on the list.</p>'
     '<p style="margin:0 0 12px">thanks for subscribing to <strong style="color:#14f195">just build it</strong>.</p>'
-    '<p style="margin:0 0 12px">stop overthinking. start shipping. one weekend beats a six-month roadmap.</p>'
-    f'<p style="margin:0">ready? open <a href="{SOLANA_NEW}" style="color:{PRIMARY};text-decoration:underline">solana.new</a> and ship something today.</p>'
+    '<p style="margin:0">stop overthinking. pick one idea. ship this weekend.</p>'
 )
 
 NOTIFY_BODY = (
@@ -155,8 +169,8 @@ TEMPLATES = [
             "you're on the just build it list — time to ship.",
             "you're in.",
             CONFIRM_BODY,
-            cta_label="ship it →",
-            cta_href=SOLANA_NEW,
+            cta_label="open justbuildit.lol →",
+            cta_href=SITE,
         ),
         "variables": [],
     },
@@ -215,7 +229,6 @@ def upsert(key: str, tpl: dict) -> dict:
     if status >= 300 or not tid:
         print(f"FAIL {action} {tpl['alias']}", status, data)
         sys.exit(1)
-    # publish required
     pstatus, pdata = api(key, "POST", f"/templates/{tid}/publish", {})
     if pstatus >= 300:
         print(f"FAIL publish {tpl['alias']}", pstatus, pdata)
