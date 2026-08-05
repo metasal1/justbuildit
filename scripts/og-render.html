@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Rubik+Pixels&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; background: #000; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      color: #fff;
+      position: relative;
+    }
+    .grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(153,69,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20,241,149,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.7;
+    }
+    .vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.85) 75%);
+    }
+    .content {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 40px 60px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 28px; border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(20,241,149,0.1);
+      color: #14f195;
+      font-size: 22px; letter-spacing: 6px; text-transform: uppercase; font-weight: 700;
+      font-family: "Bricolage Grotesque", sans-serif;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #14f195; }
+    h1 {
+      margin-top: 28px;
+      font-family: "Rubik Pixels", "Bricolage Grotesque", sans-serif;
+      font-weight: 400;
+      font-size: 148px;
+      line-height: 0.95;
+      letter-spacing: -2px;
+      background: linear-gradient(90deg, #9945ff 0%, #14f195 50%, #dc1fff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .sub {
+      margin-top: 28px;
+      font-size: 28px;
+      color: rgba(255,255,255,0.75);
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 500;
+    }
+    .meta {
+      margin-top: 22px;
+      display: flex; gap: 20px;
+      font-size: 20px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .meta span.sep { color: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="vignette"></div>
+  <div class="content">
+    <div class="pill"><span class="dot"></span>justbuildit.lol</div>
+    <h1>JUST BUILD<br/>IT.</h1>
+    <div class="sub">&gt; stop overthinking. ship something today._</div>
+    <div class="meta">
+      <span>ship fast</span><span class="sep">•</span>
+      <span>iterate later</span><span class="sep">•</span>
+      <span>solana.new</span>
+    </div>
+  </div>
+</body>
+</html>
