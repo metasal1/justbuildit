@@ -114,7 +114,7 @@ export default function Home() {
           live · justbuildit.lol
         </div>
 
-        <h1 className="font-black leading-[0.85] tracking-tighter text-[clamp(4rem,18vw,16rem)]">
+        <h1 className="font-title font-normal leading-[0.9] tracking-tight text-[clamp(3.5rem,16vw,14rem)]">
           <span className="block animated-gradient">JUST</span>
           <span className="block animated-gradient" style={{ animationDelay: "1s" }}>
             BUILD
