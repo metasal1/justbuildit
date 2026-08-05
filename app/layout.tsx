@@ -15,7 +15,11 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = "https://justbuildit.lol";
 const SITE_NAME = "just build it";
-const SITE_TAGLINE = "stop overthinking. ship something on Solana. → solana.new";
+const SITE_TAGLINE =
+  "stop overthinking. ship something on Solana. → solana.new";
+const OG_IMAGE = "/images/opengraph.png?v=2";
+// Hardcoded at build (static export). MILYSEC property justbuildit.lol.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-75Z5E0HRNC";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -52,12 +56,22 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_TAGLINE,
     locale: "en_US",
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "just build it — stop overthinking, ship something on Solana",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_TAGLINE,
     creator: "@metasal_",
+    images: [OG_IMAGE],
   },
   category: "technology",
 };
@@ -76,6 +90,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaEnabled = GA_ID.startsWith("G-") && !GA_ID.includes("PLACEHOLDER");
+
   return (
     <html
       lang="en"
@@ -83,6 +99,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-black text-white overflow-x-hidden">
         {children}
+        {gaEnabled && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+            </Script>
+          </>
+        )}
         {cfBeaconToken && (
           <Script
             strategy="afterInteractive"

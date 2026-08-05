@@ -161,19 +161,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   }
 
   let email: string | undefined;
+  let honeypot: string | undefined;
   const ct = request.headers.get("content-type") ?? "";
 
   try {
     if (ct.includes("application/json")) {
-      const body = (await request.json()) as { email?: unknown };
+      const body = (await request.json()) as {
+        email?: unknown;
+        website?: unknown;
+      };
       if (typeof body.email === "string") email = body.email;
+      if (typeof body.website === "string") honeypot = body.website;
     } else {
       const form = await request.formData();
       const v = form.get("email");
       if (typeof v === "string") email = v;
+      const hp = form.get("website");
+      if (typeof hp === "string") honeypot = hp;
     }
   } catch {
     return json({ error: "invalid_body" }, 400);
+  }
+
+  // Honeypot — silent success for bots
+  if (honeypot && honeypot.trim().length > 0) {
+    return json({ ok: true, duplicate: false });
   }
 
   email = email?.trim().toLowerCase();

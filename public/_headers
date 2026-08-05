@@ -1,0 +1,11 @@
+/images/*
+  Content-Type: image/png
+  Cache-Control: public, max-age=86400, immutable
+
+/images/opengraph.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=3600
+
+/opengraph-image
+  Content-Type: image/png
+  Cache-Control: public, max-age=3600

@@ -41,15 +41,23 @@ export default function Home() {
     setSubStatus("loading");
     setSubMessage("");
     try {
+      const fd = new FormData(e.currentTarget);
+      const website = String(fd.get("website") || "");
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, website }),
       });
       if (res.ok) {
         setSubStatus("success");
         setSubMessage("you're in. now go ship something.");
         setEmail("");
+        if (typeof window !== "undefined") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).gtag?.("event", "subscribe", {
+            method: "email",
+          });
+        }
       } else {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         setSubStatus("error");
@@ -133,9 +141,20 @@ export default function Home() {
           <p className="text-xs uppercase tracking-[0.2em] text-white/50 font-mono">
             get the drop. no spam.
           </p>
+          {/* honeypot — leave empty */}
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute opacity-0 pointer-events-none h-0 w-0"
+            defaultValue=""
+          />
           <div className="w-full flex flex-col sm:flex-row gap-2">
             <input
               type="email"
+              name="email"
               required
               autoComplete="email"
               inputMode="email"
