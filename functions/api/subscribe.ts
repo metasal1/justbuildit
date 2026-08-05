@@ -7,9 +7,18 @@ interface Env {
   RESEND_AUDIENCE_ID?: string;
   RESEND_FROM_EMAIL?: string;
   RESEND_FROM_NAME?: string;
+  RESEND_NOTIFY_TO?: string;
+  RESEND_TPL_SUBSCRIBE_CONFIRM?: string;
+  RESEND_TPL_SUBSCRIBE_NOTIFY?: string;
   SHEETS_WEBHOOK_URL?: string;
   SHEETS_WEBHOOK_SECRET?: string;
 }
+
+// Hardcoded published template IDs (optional env override for rotation)
+const TPL_SUBSCRIBE_CONFIRM = "997a7bcf-84d5-437f-9158-ba02705fbefb";
+const TPL_SUBSCRIBE_NOTIFY = "bfb2d66b-6db5-4f8d-b8e1-43039679fd96";
+const DEFAULT_FROM = "just build it <noreply@justbuildit.lol>";
+const DEFAULT_NOTIFY_TO = "gm@metasal.xyz";
 
 type PagesFunction<E = unknown> = (ctx: {
   request: Request;
@@ -117,9 +126,17 @@ const addToResendAudience = async (env: Env, email: string) => {
   if (!res.ok) console.error("resend_audience_error", res.status, await res.text());
 };
 
+const resendFrom = (env: Env) => {
+  if (env.RESEND_FROM_EMAIL) {
+    const name = env.RESEND_FROM_NAME || "just build it";
+    return `${name} <${env.RESEND_FROM_EMAIL}>`;
+  }
+  return DEFAULT_FROM;
+};
+
 const sendWelcome = async (env: Env, to: string) => {
-  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) return;
-  const fromName = env.RESEND_FROM_NAME || "just build it";
+  if (!env.RESEND_API_KEY) return;
+  const tplId = env.RESEND_TPL_SUBSCRIBE_CONFIRM || TPL_SUBSCRIBE_CONFIRM;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -127,15 +144,51 @@ const sendWelcome = async (env: Env, to: string) => {
       authorization: `Bearer ${env.RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: `${fromName} <${env.RESEND_FROM_EMAIL}>`,
+      from: resendFrom(env),
       to: [to],
       reply_to: "gm@metasal.xyz",
-      subject: "you're in. now go ship something.",
-      text: "hey,\n\nthanks for subscribing to just build it.\n\nstop overthinking. start shipping.\n\nmore from metasal: https://metasal.xyz\nchat: https://t.me/metasalxyz\n\njust build it\n",
-      html: '<p>hey,</p><p>thanks for subscribing to <strong>just build it</strong>.</p><p>stop overthinking. start shipping.</p><p>more from metasal: <a href="https://metasal.xyz">metasal.xyz</a><br>chat: <a href="https://t.me/metasalxyz">t.me/metasalxyz</a></p><p>just build it</p>',
+      template: { id: tplId },
+      tags: [
+        { name: "category", value: "subscribe" },
+        { name: "product", value: "justbuildit" },
+      ],
     }),
   });
   if (!res.ok) console.error("resend_send_error", res.status, await res.text());
+};
+
+const notifyEmail = async (
+  env: Env,
+  email: string,
+  ip: string | null
+) => {
+  if (!env.RESEND_API_KEY) return;
+  const to = env.RESEND_NOTIFY_TO || DEFAULT_NOTIFY_TO;
+  const tplId = env.RESEND_TPL_SUBSCRIBE_NOTIFY || TPL_SUBSCRIBE_NOTIFY;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from: resendFrom(env),
+      to: [to],
+      template: {
+        id: tplId,
+        variables: {
+          CONTACT_EMAIL: email,
+          SOURCE: "homepage",
+          IP: ip || "—",
+        },
+      },
+      tags: [
+        { name: "category", value: "subscribe-notify" },
+        { name: "product", value: "justbuildit" },
+      ],
+    }),
+  });
+  if (!res.ok) console.error("resend_notify_error", res.status, await res.text());
 };
 
 const notifyTelegram = async (env: Env, text: string) => {
@@ -214,6 +267,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     );
     waitUntil(addToResendAudience(env, email));
     waitUntil(sendWelcome(env, email));
+    waitUntil(notifyEmail(env, email, ip));
     waitUntil(appendToSheet(env, email, ip, ua, now));
   }
 
