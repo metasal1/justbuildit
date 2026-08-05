@@ -1,23 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Rubik_Pixels } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const rubikPixels = Rubik_Pixels({
+  variable: "--font-rubik-pixels",
   subsets: ["latin"],
+  weight: "400",
+  display: "swap",
 });
 
 const SITE_URL = "https://justbuildit.lol";
 const SITE_NAME = "just build it";
 const SITE_TAGLINE =
   "stop overthinking. ship something on Solana. → solana.new";
-const OG_IMAGE = "/images/opengraph.png?v=2";
+const OG_IMAGE = "/images/opengraph.png?v=3";
 // Hardcoded at build (static export). MILYSEC property justbuildit.lol.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-75Z5E0HRNC";
 
@@ -95,9 +98,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${rubikPixels.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-black text-white overflow-x-hidden">
+      <body className="min-h-full flex flex-col bg-black text-white overflow-x-hidden font-sans">
         {children}
         {gaEnabled && (
           <>
